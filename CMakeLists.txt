@@ -31,8 +31,8 @@ add_executable(${PROJECT_NAME} src/main.cpp)
 add_subdirectory(src)
 target_link_libraries(
     ${PROJECT_NAME}
-    PUBLIC
-        ${OpenCV_LIBS}
+    # PUBLIC
+    #     ${OpenCV_LIBS}
     PRIVATE
         ${PROJECT_NAME}_LIB
 )
