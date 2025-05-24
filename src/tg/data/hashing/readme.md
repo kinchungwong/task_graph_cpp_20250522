@@ -1,0 +1,2 @@
+# Namespace tg::data::hashing
+
