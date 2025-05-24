@@ -9,12 +9,12 @@ CMAKE_OPTS=""
 # CMAKE_OPTS="--trace-expand"
 
 ### For Release ###
-# CMAKE_OPTS="${CMAKE_OPTS} -DCMAKE_BUILD_TYPE=Release"
-# CXXFLAGS="-std=c++17 -march=native -mtune=native -Og -g3 -ggdb -Wextra -Wpedantic"
+CMAKE_OPTS="${CMAKE_OPTS} -DCMAKE_BUILD_TYPE=Release"
+CXXFLAGS="-std=c++17 -march=native -mtune=native -Og -g3 -ggdb -Wextra -Wpedantic"
 
 ### For Debug ###
-CMAKE_OPTS="${CMAKE_OPTS} -DCMAKE_BUILD_TYPE=Debug"
-CXXFLAGS="-std=c++17 -march=native -mtune=native -Og -g3 -ggdb -Wno-unused-variable -Wno-unused-parameter -Wno-unused-function -Wno-unused-label -Wno-unused-value -Wno-unused-but-set-variable -Wno-unused-local-typedefs -Wno-unused-result -Wno-missing-field-initializers -Wno-missing-braces -Wno-missing-braces -Wno-missing-field-initializers"
+# CMAKE_OPTS="${CMAKE_OPTS} -DCMAKE_BUILD_TYPE=Debug"
+# CXXFLAGS="-std=c++17 -march=native -mtune=native -Og -g3 -ggdb -Wno-unused-variable -Wno-unused-parameter -Wno-unused-function -Wno-unused-label -Wno-unused-value -Wno-unused-but-set-variable -Wno-unused-local-typedefs -Wno-unused-result -Wno-missing-field-initializers -Wno-missing-braces -Wno-missing-braces -Wno-missing-field-initializers"
 
 # test -d "./opencv_build"
 
