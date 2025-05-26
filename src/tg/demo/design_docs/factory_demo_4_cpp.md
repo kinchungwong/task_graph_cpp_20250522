@@ -154,40 +154,46 @@ using TaskPtr = std::shared_ptr<Task>;
 class SubgraphFactory
 {
 public:
-    DataPtr make_data();
-    DataPtr make_data(const std::string& name)
-    {
-        auto data = this->make_data();
-        data->name(name);
-        return data;
-    }
-    TaskPtr make_task();
-    TaskPtr make_task(std::initializer_list<DataPtr> inputs, std::initializer_list<DataPtr> outputs)
-    {
-        auto task = this->make_task();
-        task->set_inputs(inputs);
-        task->set_outputs(outputs);
-        return task;
-    }
+    // DataPtr make_data();
+    // DataPtr make_data(const std::string& name)
+    // {
+    //     auto data = this->make_data();
+    //     data->name(name);
+    //     return data;
+    // }
 
-    TaskPtr make_task(std::initializer_list<DataPtr> inputs, std::initializer_list<DataPtr> outputs, const std::string& name)
-    {
-        auto task = this->make_task();
-        task->set_inputs(inputs);
-        task->set_outputs(outputs);
-        task->name(name);
-        return task;
-    }
+    // TaskPtr make_task();
+    // TaskPtr make_task(std::initializer_list<DataPtr> inputs, std::initializer_list<DataPtr> outputs)
+    // {
+    //     auto task = this->make_task();
+    //     task->set_inputs(inputs);
+    //     task->set_outputs(outputs);
+    //     return task;
+    // }
 
-    TaskPtr make_task(std::initializer_list<DataPtr> inputs, std::initializer_list<DataPtr> outputs, const std::string& name, DataContextFunctor functor)
-    {
-        auto task = this->make_task();
-        task->set_inputs(inputs);
-        task->set_outputs(outputs);
-        task->name(name);
-        task->set_functor(std::move(functor));
-        return task;
-    }
+    // TaskPtr make_task(std::initializer_list<DataPtr> inputs, std::initializer_list<DataPtr> outputs, const std::string& name)
+    // {
+    //     auto task = this->make_task();
+    //     task->set_inputs(inputs);
+    //     task->set_outputs(outputs);
+    //     task->name(name);
+    //     return task;
+    // }
+
+    // TaskPtr make_task(std::initializer_list<DataPtr> inputs, std::initializer_list<DataPtr> outputs, const std::string& name, DataContextFunctor functor)
+    // {
+    //     auto task = this->make_task();
+    //     task->set_inputs(inputs);
+    //     task->set_outputs(outputs);
+    //     task->name(name);
+    //     task->set_functor(std::move(functor));
+    //     return task;
+    // }
+
+    DataPtr make_external_input(const std::string& name);
+
+    DataPtr make_external_output(const std::string& name);
+
     TaskPtr make_task(DataContextFunctor functor)
     {
         auto task = this->make_task();
@@ -198,20 +204,11 @@ public:
 
 void facade_demo()
 {
-    // ====== New code ======
-    auto sg_factory = std::make_shared<SubgraphFactory>();
-    
-    // ====== Naming everything (not necessary) ======
-    // auto d_gray = sg_factory->make_data("gray");
-    // auto d_gray_blur = sg_factory->make_data("gray_blur");
-
-    // ====== Don't give names, unless they are needed ======
-    // Names are needed when interfacing with another subgraph or global inputs/outputs.
-    // ======
-    auto d_gray = sg_factory->make_data();
-    auto d_gray_blur = sg_factory->make_data();
-
     // ====== Code for design iteration 4 ======
+
+    auto sg_factory = std::make_shared<SubgraphFactory>();
+
+    sg_factory->make_external_input("gray");
 
     struct io_blur0
     {
@@ -274,6 +271,9 @@ void facade_demo()
     };
 
     auto t_blur0 = sg_factory->make_task(f_blur0);
+
+    // Optional: give name to task. Probably not necessary.
+    t_blur0->name("t_blur");
 }
 
 ```
