@@ -63,7 +63,9 @@ public:
     void assign(std::shared_ptr<T> value); // stores the smart pointer as shared_ptr<void> in the context
     void emplace(const T& value); // copy-construct
     void emplace(T&& value); // move-construct
-    void emplace(); // default constructed
+    void emplace(); // default constructed (e.g. empty cv::Mat)
+    const T& operator*() const; // valid after emplace; must throw otherwise
+    const T* operator->() const; // valid after emplace; must throw otherwise
 private:
     DataContextPtr m_ctx;
     DataPtr m_data;
@@ -202,25 +204,34 @@ void facade_demo()
     // ====== Code for design iteration 3 ======
     auto f_blur0 = [d_gray, d_gray_blur](DataContextPtr ctx) -> std::optional<std::exception_ptr>
     {
+        // d_gray, d_gray_blur carries several kinds of names:
+        // the subgraph-local name (during subgraph design), 
+        // the namespaced name (formed from (subgraph + underscore + local))
+        // globally unique name (formed from ("u" + id + underscore + namespaced_name))
+        // DataContext can be global or filtered
+        // If filtered, it may allow access to data using subgraph-local name
         try
         {
             TaskContext tc(ctx, "blur0");
-            InputContext<cv::Mat> ic_gray(ctx, d_gray);
-            OutputContext<cv::Mat> oc_gray_blur(ctx, d_gray_blur);
+            InputContext<cv::Mat> imat_gray(ctx, d_gray);
+            OutputContext<cv::Mat> omat_blur(ctx, d_gray_blur);
             if (!ctx->is_design_time())
             {
-                // In a real implementation, this would apply a blur to the input data
-                const cv::Mat& img_gray = *ic_gray;
-                cv::Mat img_gray_blur;
-                cv::blur(img_gray, img_gray_blur);
-                oc_gray_blur.emplace(img_gray_blur);
+                // omat_blur holds an empty cv::Mat
+                oc_gray_blur.emplace();
+                // populates the cv::Mat inside omat_blur
+                cv::blur(*imat_gray, *omat_blur); 
             }
-            return std::nullopt; // No exception
+            // OutputContext::~OutputContext() calls validator on the 
+            // cv::Mat inside omat_blur; may throw.
+            // Do not return std::nullopt here.
         }
         catch (std::exception& ex)
         {
             return std::current_exception();
         }
+        // Certainly no exceptions when this line is reached.
+        return std::nullopt;
     };
     auto t_blur0 = sg_factory->make_task(f_blur0);
 }
