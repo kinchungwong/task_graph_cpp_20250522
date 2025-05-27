@@ -90,7 +90,14 @@ public:
     }
     ~TaskOutput()
     {
-        m_ctx->writer_leave(m_slot_id, std::move(m_pt.first), m_pt.second);
+        if (m_ctx->has_exception())
+        {
+            return;
+        }
+        if (m_pt.first)
+        {
+            m_ctx->writer_leave(m_slot_id, std::move(m_pt.first), m_pt.second);
+        }
     }
 private:
     TaskOutput(const TaskOutput&) = delete;
@@ -149,8 +156,6 @@ public:
         : ContextualTask()
         , m_input_name(input_name)
         , m_output_name(output_name)
-        , m_input(std::nullopt)
-        , m_output(std::nullopt)
     {}
 
     void invoke(TaskContextPtr ctx) final
