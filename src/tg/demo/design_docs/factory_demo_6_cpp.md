@@ -108,14 +108,23 @@ private:
  * @brief Context-aware task interface.
  * 
  * @details
- * This task interface is designed to be used within a task graph framework,
- * and will be used in two different lifecycles:
- *
- * 1. During the design phase, where tasks are created and configured.
- *     ctor() --> clone() --> attach(ctx_design) -- dtor()
- *
- * 2. During the execution phase, where tasks are executed with a specific context.
- *     (from clone()) --> attach(ctx_execute) --> execute() -- dtor()
+ * This task interface is designed to be used within a task graph framework.
+ * 
+ * At design time (TaskContext::is_exec_time() is false), the TaskInput
+ * and TaskOutput should be created from the given TaskContext, but
+ * they should not be dereferenced.
+ * 
+ * At execute time, the TaskInput and TaskOutput should be created 
+ * from the given TaskContext (which will be different from the one
+ * at design time). The TaskInput can be dereferenced (since it has
+ * been populated), and the TaskOutput should be emplaced and
+ * populated.
+ * 
+ * The TaskContext instance that is passed in at design time or
+ * execute time is responsible for the namespace mapping of
+ * data items. The only requirement is that the ContextualTask
+ * implementation uses the same input and output names for both
+ * design time and execute time.
  */
 class ContextualTask
 {
@@ -124,9 +133,7 @@ protected:
 
 public:
     virtual ~ContextualTask();
-    virtual ContextualTaskPtr clone() = 0;
-    virtual void attach(TaskContextPtr ctx) = 0;
-    virtual void execute() = 0;
+    virtual void invoke(TaskContextPtr ctx) = 0;
 
 private:
     ContextualTask(const ContextualTask&) = delete;
@@ -146,42 +153,24 @@ public:
         , m_output(std::nullopt)
     {}
 
-    ContextualTaskPtr clone() final
-    {
-        return std::make_shared<BlurTask>(m_input_name, m_output_name);
-    }
-
-    void attach(TaskContextPtr ctx) final
+    void invoke(TaskContextPtr ctx) final
     {
         if (!ctx)
         {
             throw std::invalid_argument("BlurTask::attach(): ctx cannot be nullptr");
         }
-        m_input.emplace(ctx, m_input_name);
-        m_output.emplace(ctx, m_output_name);
-    }
-
-    void execute() final
-    {
-#if 1
-        m_output->emplace();
-        cv::blur(**m_input, **m_output);
-#else
-        /**
-         * Equivalent but more verbose code, showing the multiple dereferences.
-         */
-        const cv::Mat& input = m_input.value().operator*();
-        cv::Mat& output = m_output->emplace();
-        cv::blur(input, output);
-#endif
+        TaskInput<cv::Mat> input(ctx, m_input_name);
+        TaskOutput<cv::Mat> output(ctx, m_output_name);
+        if (ctx->is_exec_time())
+        {
+            output.emplace();
+            cv::blur(*m_input, *m_output);
+        }
     }
 
 private:
-    // The std::optional<> is merely used to allow late binding of TaskInput and TaskOutput.
     std::string m_input_name;
     std::string m_output_name;
-    std::optional<TaskInput<cv::Mat>> m_input;
-    std::optional<TaskOutput<cv::Mat>> m_output;
 };
 
 class SubgraphFactory
