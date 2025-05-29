@@ -5,9 +5,11 @@
 #include "tg/facade/facade_common.hpp"
 #include "tg/facade/subgraph.hpp"
 #include "tg/demo/facade_demo.hpp"
+#include "tg/core/test_case/test_case_main.hpp"
 
 int main(int argc, char** argv)
 {
-    facade_demo();
+    // facade_demo();
+    test_case_main();
     return 0;
 }
