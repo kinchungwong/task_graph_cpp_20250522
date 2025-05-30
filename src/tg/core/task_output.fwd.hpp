@@ -1,11 +1,12 @@
 #pragma once
 #include "tg/core/fwd.hpp"
+#include "tg/core/task_data.hpp"
 
 namespace tg::core
 {
 
 template <typename T>
-class TaskOutput
+class TaskOutput final : public TaskData
 {
 public:
     using ValueType = T;
@@ -15,7 +16,7 @@ public:
     static_assert(!std::is_volatile_v<T>, "T in TaskOutput<T> cannot be volatile-qualified");
 
 public:
-    TaskOutput(Context& ctx, const std::string& name);
+    explicit TaskOutput(const std::string& name);
     ~TaskOutput();
 
     template <typename... Args>
@@ -29,12 +30,6 @@ private:
     TaskOutput(TaskOutput&&) = delete;
     TaskOutput& operator=(const TaskOutput&) = delete;
     TaskOutput& operator=(TaskOutput&&) = delete;
-
-private:
-    // m_ref_ctx, m_name needed for writing data back to the context in destructor
-    Context& m_ctx;
-    std::string m_name;
-    std::shared_ptr<T> m_data;
 };
 
 } // namespace tg::core

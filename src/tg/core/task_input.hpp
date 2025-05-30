@@ -1,40 +1,50 @@
 #pragma once
 #include "tg/core/task_input.fwd.hpp"
-#include "tg/core/context.hpp"
 
 namespace tg::core
 {
 
 template <typename T>
-TaskInput<T>::TaskInput(Context& ctx, const std::string& name)
+TaskInput<T>::TaskInput(const std::string& name)
+    : TaskData(name)
 {
-    auto p = ctx.get_data(name, std::type_index(typeid(T)));
-    if (!p)
-    {
-        throw std::runtime_error("TaskInput<T>::ctor() : data for " + name + " is not of type " + typeid(T).name());
-    }
-    // Note: a non-null shared_ptr<void> casting to T* does not throw.
-    m_data = std::static_pointer_cast<T>(p);
+}
+
+template <typename T>
+TaskInput<T>::~TaskInput()
+{
 }
 
 template <typename T>
 const T& TaskInput<T>::operator*() const
 {
-    if (!m_data)
-    {
-        throw std::runtime_error("TaskInput<T>::operator*() : m_data is null.");
-    }
-    return *m_data;
+    return *this->operator->();
 }
 
 template <typename T>
 const T* TaskInput<T>::operator->() const
 {
-    if (!m_data)
+    std::shared_ptr<void> out_value;
+    std::type_index out_type{typeid(void)};
+    if (!this->try_get(out_value, out_type))
     {
-        throw std::runtime_error("TaskInput<T>::operator*() : m_data is null.");
+        throw std::runtime_error("TaskInput<T>::operator*() : failed to get value.");
     }
-    return m_data.get();
+    /**
+     * @invariant out_value is not null, enforced by TaskData::try_get()
+     */
+    if (out_type != std::type_index(typeid(T)))
+    {
+        std::string str_expected{typeid(T).name()};
+        std::string str_actual{out_type.name()};
+        throw std::runtime_error("TaskInput<T>::operator*() : type mismatch. Expected: " +
+            str_expected + ", got: " + str_actual);
+    }
+    /**
+     * @note Equivalent to std::static_pointer_cast<T>(out_value)
+     * @ref https://en.cppreference.com/w/cpp/memory/shared_ptr/pointer_cast
+     */
+    return static_cast<const T*>(out_value.get());
 }
 
 } // namespace tg::core

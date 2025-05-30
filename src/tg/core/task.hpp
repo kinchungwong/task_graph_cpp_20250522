@@ -8,8 +8,8 @@ class Task
 {
 public:
     virtual ~Task();
-    virtual void on_added(Subgraph& subgraph) = 0;
-    virtual void on_execute(Context& context) = 0;
+    TaskDataSetPtr get_dataset() const;
+    virtual void on_execute() = 0;
 
 protected:
     Task();
@@ -19,6 +19,18 @@ private:
     Task& operator=(const Task&) = delete;
     Task(Task&&) = delete;
     Task& operator=(Task&&) = delete;
+
+protected:
+    /**
+     * @brief List of data that this task will use.
+     *
+     * @details
+     * Each task is bound to a dataset object to enforce consistency between
+     * design-time and execute-time. The TaskDataSet object only owns the
+     * data temporarily: the actual data is assigned immediately before task
+     * execution, and removed immediately after execution.
+     */
+    const TaskDataSetPtr m_dataset;
 };
 
 } // namespace tg::core

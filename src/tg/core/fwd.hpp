@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <memory>
 #include <optional>
+#include <typeinfo>
 #include <typeindex>
 #include <stdexcept>
 #include <mutex>
@@ -15,11 +16,14 @@ namespace tg::core
 class Task;
 using TaskPtr = std::shared_ptr<Task>;
 
+class TaskData;
+using TaskDataPtr = std::shared_ptr<TaskData>;
+
+class TaskDataSet;
+using TaskDataSetPtr = std::shared_ptr<TaskDataSet>;
+
 class Subgraph;
 using SubgraphPtr = std::shared_ptr<Subgraph>;
-
-class Context;
-using ContextPtr = std::shared_ptr<Context>;
 
 template <typename T> class TaskInput;
 template <typename T> class TaskOutput;
