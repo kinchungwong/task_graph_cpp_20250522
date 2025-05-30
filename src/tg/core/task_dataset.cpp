@@ -1,4 +1,5 @@
 #include "tg/core/task_dataset.hpp"
+#include "tg/core/task_data.hpp"
 
 namespace tg::core
 {
@@ -65,6 +66,15 @@ void TaskDataSet::get_all(std::vector<TaskDataPtr>& out_items) const
     }
     LockType lock(m_mutex);
     out_items.assign(m_data.begin(), m_data.end());
+}
+
+void TaskDataSet::release()
+{
+    LockType lock(m_mutex);
+    for (auto& data : m_data)
+    {
+        data->release();
+    }
 }
 
 } // namespace tg::core

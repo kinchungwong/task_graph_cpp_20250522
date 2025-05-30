@@ -24,7 +24,9 @@ void test_case_main()
 
     blur_task->on_execute();
 
-
+    /**
+     * @note Simulates executor behavior of retrieving outputs after task execution.
+     */
     std::shared_ptr<void> fake_output;
     std::type_index fake_output_type{typeid(void)};
     bool success = dataset->at(1)->try_get(fake_output, fake_output_type);
@@ -35,4 +37,9 @@ void test_case_main()
     }
     std::cout << "Output type: " << fake_output_type.name() << std::endl;
     std::cout << "Output pointer: " << fake_output.get() << std::endl;
+
+    /**
+     * @note Simulates executor behavior of post-execution cleanup.
+     */
+    dataset->release();
 }

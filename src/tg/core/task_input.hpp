@@ -6,7 +6,7 @@ namespace tg::core
 
 template <typename T>
 TaskInput<T>::TaskInput(const std::string& name)
-    : TaskData(name)
+    : TaskData{name, TaskDataFlags::Input}
 {
 }
 

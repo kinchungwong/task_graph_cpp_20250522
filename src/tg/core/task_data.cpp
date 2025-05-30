@@ -3,27 +3,10 @@
 namespace tg::core
 {
 
-#if 0 // NOT IMPLEMENTED
-// TaskData::TaskData(
-//     const std::string& name,
-//     TaskDataFlags flags,
-//     std::optional<std::type_index> expected_type,
-//     ValidatorPtr validator
-// )
-//     : m_mutex{}
-//     , m_name{name}
-//     , m_flags{flags}
-//     , m_expected{expected_type}
-//     , m_validator{std::move(validator)}
-//     , m_actual{std::type_index(typeid(void))}
-//     , m_value{}
-// {
-// }
-#endif // NOT IMPLEMENTED
-
-TaskData::TaskData(const std::string& name)
+TaskData::TaskData(const std::string& name, TaskDataFlags flags)
     : m_mutex{}
     , m_name{name}
+    , m_flags{flags}
     , m_expected{std::nullopt}
     , m_actual{std::type_index(typeid(void))}
     , m_value{}
@@ -76,18 +59,11 @@ bool TaskData::try_get(std::shared_ptr<void>& out_value, std::type_index& out_ty
     return true;
 }
 
-bool TaskData::consume(std::shared_ptr<void>& out_value, std::type_index& out_type)
+void TaskData::release()
 {
     LockType lock(m_mutex);
-    if (!m_value)
-    {
-        return false;
-    }
-    out_value = std::move(m_value);
-    out_type = m_actual;
-    out_value.reset();
-    out_type = std::type_index(typeid(void));
-    return true;
+    m_value.reset();
+    m_actual = std::type_index(typeid(void));
 }
 
 } // namespace tg::core

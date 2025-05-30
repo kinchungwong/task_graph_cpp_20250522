@@ -20,7 +20,8 @@ namespace tg::core
  * At execution time, TaskDataSet is temporarily populated with the actual
  * inputs, and captures the outputs produced by the task. The inputs are
  * assigned immediately before task execution, and the outputs are
- * transferred to the global dataset after execution.
+ * transferred to the global dataset after execution. No data is retained
+ * by TaskDataSet after task execution.
  */
 class TaskDataSet
 {
@@ -58,6 +59,13 @@ public:
      * retrieve all outputs before and after task execution.
      */
     void get_all(std::vector<TaskDataPtr>& out_items) const;
+
+    /**
+     * @brief Releases data ownership from all TaskData items.
+     * @note Any data that is still in active use will be owned by the global
+     * dataset.
+     */
+    void release();
 
 private:
     TaskDataSet(const TaskDataSet&) = delete;

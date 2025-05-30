@@ -10,6 +10,8 @@
 #include <vector>
 #include <unordered_map>
 
+#include "tg/core/task_data_flags.hpp"
+
 namespace tg::core
 {
 

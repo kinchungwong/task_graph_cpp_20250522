@@ -6,7 +6,7 @@ namespace tg::core
 
 template <typename T>
 TaskOutput<T>::TaskOutput(const std::string& name)
-    : TaskData{name}
+    : TaskData{name, TaskDataFlags::Output}
 {
 }
 
